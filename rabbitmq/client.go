@@ -22,58 +22,40 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	q, err := ch.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
+	var q amqp.Queue
+	var msgs []<-chan amqp.Delivery
+	for i := 0; i < 5; i++ {
+		q, err = ch.QueueDeclare(
+			fmt.Sprintf("task_%d", i), // name
+			false,                     // durable
+			false,                     // delete when unused
+			false,                     // exclusive
+			false,                     // no-wait
+			nil,                       // arguments
+		)
+		failOnError(err, "Failed to declare a queue")
 
-	q1, err1 := ch.QueueDeclare(
-		"world", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	failOnError(err1, "Failed to declare a queue")
-
-	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,  // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	failOnError(err, "Failed to register a consumer")
-
-	msgs1, err1 := ch.Consume(
-		q1.Name, // queue
-		"",      // consumer
-		true,   // auto-ack
-		false,   // exclusive
-		false,   // no-local
-		false,   // no-wait
-		nil,     // args
-	)
-	failOnError(err1, "Failed to register a consumer")
+		msg, err := ch.Consume(
+			q.Name, // queue
+			"",     // consumer
+			true,   // auto-ack
+			false,  // exclusive
+			false,  // no-local
+			false,  // no-wait
+			nil,    // args
+		)
+		msgs = append(msgs, msg)
+		failOnError(err, "Failed to register a consumer")
+	}
 
 	forever := make(chan bool)
-	go func() {
-		for {
-			select {
-			case m := <-msgs:
-				fmt.Printf("msgs value :%s\n", m.Body)
-			case m2 := <-msgs1:
-				fmt.Printf("msgs1 value :%s\n", m2.Body)
+	for k, msg := range msgs {
+		go func() {
+			for data := range msg {
+				fmt.Printf("%d", k)
+				fmt.Printf("%s",data.Body)
 			}
-		}
-	}()
+		}()
+	}
 	<-forever
 }
