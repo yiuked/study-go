@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/streadway/amqp"
 	"log"
 )
@@ -21,10 +22,6 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	//ch1, err1 := conn.Channel()
-	//failOnError(err1, "Failed to open a channel")
-	//defer ch1.Close()
-
 	q, err := ch.QueueDeclare(
 		"hello", // name
 		false,   // durable
@@ -34,7 +31,6 @@ func main() {
 		nil,     // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
-
 
 	q1, err1 := ch.QueueDeclare(
 		"world", // name
@@ -49,7 +45,7 @@ func main() {
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
-		false,   // auto-ack
+		true,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
@@ -57,31 +53,27 @@ func main() {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-
 	msgs1, err1 := ch.Consume(
 		q1.Name, // queue
-		"",     // consumer
-		false,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		"",      // consumer
+		true,   // auto-ack
+		false,   // exclusive
+		false,   // no-local
+		false,   // no-wait
+		nil,     // args
 	)
 	failOnError(err1, "Failed to register a consumer")
 
-
 	forever := make(chan bool)
-
 	go func() {
-		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
-		}
-
-		for d := range msgs1 {
-			log.Printf("Received a message: %s", d.Body)
+		for {
+			select {
+			case m := <-msgs:
+				fmt.Printf("msgs value :%s\n", m.Body)
+			case m2 := <-msgs1:
+				fmt.Printf("msgs1 value :%s\n", m2.Body)
+			}
 		}
 	}()
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
