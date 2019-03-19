@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"runtime"
 )
 
 func failOnError(err error, msg string) {
@@ -13,14 +14,18 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
+	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
+
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 
 	defer conn.Close()
+	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
+	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 
 	var q amqp.Queue
 	var msgs []<-chan amqp.Delivery
@@ -38,7 +43,7 @@ func main() {
 		msg, err := ch.Consume(
 			q.Name, // queue
 			"",     // consumer
-			true,   // auto-ack
+			false,  // auto-ack
 			false,  // exclusive
 			false,  // no-local
 			false,  // no-wait
@@ -47,15 +52,17 @@ func main() {
 		msgs = append(msgs, msg)
 		failOnError(err, "Failed to register a consumer")
 	}
+	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 
 	forever := make(chan bool)
 	for k, msg := range msgs {
-		go func() {
+		go func(k int, msg <-chan amqp.Delivery) {
+			fmt.Printf("%d", k)
 			for data := range msg {
-				fmt.Printf("%d", k)
-				fmt.Printf("%s",data.Body)
+				fmt.Printf("%s", data.Body)
 			}
-		}()
+		}(k, msg)
 	}
+	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 	<-forever
 }
