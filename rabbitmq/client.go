@@ -5,6 +5,7 @@ import (
 	"github.com/streadway/amqp"
 	"log"
 	"runtime"
+	"time"
 )
 
 func failOnError(err error, msg string) {
@@ -27,42 +28,59 @@ func main() {
 	defer ch.Close()
 	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 
-	var q amqp.Queue
-	var msgs []<-chan amqp.Delivery
+	msgs := make(map[string]<-chan amqp.Delivery)
 	for i := 0; i < 5; i++ {
-		q, err = ch.QueueDeclare(
-			fmt.Sprintf("task_%d", i), // name
-			false,                     // durable
-			false,                     // delete when unused
-			false,                     // exclusive
-			false,                     // no-wait
-			nil,                       // arguments
-		)
-		failOnError(err, "Failed to declare a queue")
-
-		msg, err := ch.Consume(
-			q.Name, // queue
-			"",     // consumer
-			false,  // auto-ack
-			false,  // exclusive
-			false,  // no-local
-			false,  // no-wait
-			nil,    // args
-		)
-		msgs = append(msgs, msg)
-		failOnError(err, "Failed to register a consumer")
+		qName := fmt.Sprintf("task_%d", i)
+		msg, _ := addConsumer(ch, qName)
+		if nil != msg {
+			msgs[qName] = msg
+		}
 	}
 	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 
 	forever := make(chan bool)
-	for k, msg := range msgs {
-		go func(k int, msg <-chan amqp.Delivery) {
-			fmt.Printf("%d", k)
+	for taskName, msg := range msgs {
+		taskQueue, _ := ch.QueueInspect(taskName)
+		fmt.Printf("Queue:%s,Consumers:%d\n", taskName, taskQueue.Consumers)
+
+		go func(task string, msg <-chan amqp.Delivery) {
+			fmt.Printf("%s", task)
 			for data := range msg {
-				fmt.Printf("%s", data.Body)
+				fmt.Printf("%s\n", data.Body)
+				time.Sleep(time.Second * 5)
 			}
-		}(k, msg)
+		}(taskName, msg)
 	}
 	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 	<-forever
+}
+
+func addConsumer(ch *amqp.Channel, queueName string) (<-chan amqp.Delivery, error) {
+	q, err := ch.QueueDeclare(
+		queueName, // name
+		false,     // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // no-wait
+		nil,       // arguments
+	)
+	if nil != err {
+		return nil, err
+	}
+
+	msg, err := ch.Consume(
+		q.Name, // queue
+		"",     // consumer
+		false,  // auto-ack
+		false,  // exclusive
+		false,  // no-local
+		false,  // no-wait
+		nil,    // args
+	)
+
+	if nil != err {
+		return nil, err
+	}
+
+	return msg, nil
 }
