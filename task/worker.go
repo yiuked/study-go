@@ -23,9 +23,11 @@ func (worker *Worker) initMQ() {
 func Dispatch() {
 	var worker Worker
 	worker.initMQ()
-	//defer worker.close()
+	defer worker.close()
 	for {
 		tasks := GetAll("SELECT id_task,name FROM `task`")
+
+		fmt.Printf("Current tasks number %d\n", len(tasks))
 		if nil != tasks {
 			for _, task := range tasks {
 				if _, ok := worker.mqCh[task["name"]]; ok {
@@ -51,7 +53,7 @@ func Dispatch() {
 					continue
 				}
 
-				addRecvMsg(task["name"], msg)
+				go addRecvMsg(task["name"], msg)
 			}
 		} else {
 			log.Println("Tasks list is empty!")
@@ -102,5 +104,4 @@ func addRecvMsg(task string, msg <-chan amqp.Delivery) {
 
 func (worker Worker) close() {
 	worker.mqConn.Close()
-	worker.mqCh.Close()
 }

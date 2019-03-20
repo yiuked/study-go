@@ -5,7 +5,7 @@ import "database/sql"
 var db *sql.DB
 
 func init() {
-	db, _ = sql.Open("mysql", "root:@tcp(127.0.0.1:3309)/go?charset=utf8")
+	db, _ = sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/go?charset=utf8")
 	db.SetMaxOpenConns(2000)
 	db.SetMaxIdleConns(1000)
 	db.Ping()
