@@ -38,21 +38,16 @@ func main() {
 	}
 	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
 
-	forever := make(chan bool)
+
 	for taskName, msg := range msgs {
 		taskQueue, _ := ch.QueueInspect(taskName)
 		fmt.Printf("Queue:%s,Consumers:%d\n", taskName, taskQueue.Consumers)
-
-		go func(task string, msg <-chan amqp.Delivery) {
-			fmt.Printf("%s", task)
-			for data := range msg {
-				fmt.Printf("%s\n", data.Body)
-				time.Sleep(time.Second * 5)
-			}
-		}(taskName, msg)
+		go addRecvMsg(taskName, msg)
 	}
 	fmt.Printf("Num Goroutine: %d\n", runtime.NumGoroutine())
-	<-forever
+
+
+
 }
 
 func addConsumer(ch *amqp.Channel, queueName string) (<-chan amqp.Delivery, error) {
@@ -84,3 +79,13 @@ func addConsumer(ch *amqp.Channel, queueName string) (<-chan amqp.Delivery, erro
 
 	return msg, nil
 }
+
+func addRecvMsg(task string, msg <-chan amqp.Delivery)  {
+	fmt.Printf("%s", task)
+	for data := range msg {
+		fmt.Printf("%s\n", data.Body)
+		time.Sleep(time.Second * 5)
+	}
+}
+
+
