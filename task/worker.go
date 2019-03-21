@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"reflect"
 	"time"
 )
 
@@ -96,9 +97,13 @@ func addConsumer(ch *amqp.Channel, queueName string) (<-chan amqp.Delivery, erro
 
 func addRecvMsg(task string, msg <-chan amqp.Delivery) {
 	log.Printf("Tasks[%s] is recving!\n", task)
+
+	t := &Task{}
+	v := reflect.ValueOf(t)
+
 	for data := range msg {
-		fmt.Printf("%s\n", data.Body)
-		time.Sleep(time.Second * 5)
+		arg := reflect.ValueOf(data.Body)
+		v.MethodByName("RepayTask").Call([]reflect.Value{arg})
 	}
 }
 

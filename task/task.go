@@ -2,31 +2,32 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 )
 
 type Task struct {
 	name string
 }
 
-func (task *Task) RepayTask(name string) {
-	fmt.Println("Repay Task")
+// 函数名一定要大写，不然反射获取不到函数列表
+func (task *Task) RepayTask(body []byte) {
+	fmt.Printf("Repay Task Recv:%s\n", body)
 }
 
-func (task *Task) InvestTask(name string) {
-	fmt.Println("Invest Task")
+// 函数名一定要大写，不然反射获取不到函数列表
+func (task *Task) InvestTask(body []byte) {
+	fmt.Printf("Invest Task Recv:%s\n", body)
 }
 
-func main()  {
-	t := &Task{}
-	v := reflect.ValueOf(t)
-
-	ele := v.Elem()
-	s := ele.Type()
-	fmt.Println(s.NumField())
-
-	fmt.Println(v.NumMethod())
-	arg := reflect.ValueOf("ABC")
-	v.MethodByName("RepayTask").Call([]reflect.Value{arg})
-	v.MethodByName("InvestTask").Call([]reflect.Value{arg})
-}
+//func main()  {
+//	t := &Task{}
+//	v := reflect.ValueOf(t)
+//
+//	ele := v.Elem()
+//	s := ele.Type()
+//	fmt.Println(s.NumField())
+//
+//	fmt.Println(v.NumMethod())
+//	arg := reflect.ValueOf("ABC")
+//	v.MethodByName("RepayTask").Call([]reflect.Value{arg})
+//	v.MethodByName("InvestTask").Call([]reflect.Value{arg})
+//}
