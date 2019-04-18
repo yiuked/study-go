@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	_ "github.com/micro/micro"
 )
 
 func main() {

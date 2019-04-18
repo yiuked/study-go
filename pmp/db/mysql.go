@@ -1,13 +1,16 @@
-package main
+package db
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
 
 var db *sql.DB
+
+type Row map[string]string
+type Rows [] Row
 
 func init() {
 	var err error
@@ -21,7 +24,8 @@ func init() {
 	db.Ping()
 }
 
-func GetOne(query string, args ...interface{}) []string {
+
+func GetOne(query string, args ...interface{}) Row {
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -30,22 +34,26 @@ func GetOne(query string, args ...interface{}) []string {
 		return nil
 	}
 
+	// 获取查询到的行名，返回了一个[]string
 	cols, err := rows.Columns()
 
+	result := Row{}
+
 	rawResult := make([][]byte, len(cols))
-	result := make([]string, len(cols))
 	dest := make([]interface{}, len(cols))
 	for i := range rawResult {
 		dest[i] = &rawResult[i]
 	}
 
 	if rows.Next() {
+		// 传一个内存地址数组进行切割后，分散传入,每个内存地址保存一个字段值。
 		err = rows.Scan(dest...)
+		// 将存在内存地址中的值，传给result
 		for i, raw := range rawResult {
 			if raw == nil {
-				result[i] = ""
+				result[cols[i]] = ""
 			} else {
-				result[i] = string(raw)
+				result[cols[i]] = string(raw)
 			}
 		}
 	} else {
@@ -55,9 +63,6 @@ func GetOne(query string, args ...interface{}) []string {
 	_ = err
 	return result
 }
-
-type Row map[string]string
-type Rows [] Row
 
 func GetAll(query string, args ...interface{}) Rows {
 	rows, err := db.Query(query, args...)
