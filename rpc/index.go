@@ -31,7 +31,10 @@ func main() {
 		questions.PUT("", UpdateQuestion)
 
 		questions.DELETE("", DeleteQuestion)
+
+		questions.POST("/search", SearchQuestions)
 	}
+
 
 	results := router.Group("/results")
 	{
@@ -46,5 +49,5 @@ func main() {
 		results.DELETE("", DeleteResult)
 	}
 
-	router.Run(":8081")
+	router.Run(":8080")
 }

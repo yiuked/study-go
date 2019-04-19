@@ -2,40 +2,35 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"log"
 	"net/http"
 )
 
-func GetTypes(c *gin.Context)  {
-	//page := c.DefaultQuery("page", "1")
-	//pageSize := c.DefaultQuery("pageSize", "50")
-
-	db := conn()
+func GetTypes(c *gin.Context) {
+	db := Conn()
 	defer db.Close()
 
 	// 读取
-	var typeObject Type
-	db.First(&typeObject)
+	var types []Type
+	db.Find(&types)
 
-	log.Print(typeObject)
-	c.String(http.StatusOK, "Hello %s", typeObject.title)
+	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "Success", RespData: types})
 }
 
-func CreateType(c *gin.Context)  {
-	db := conn()
+func CreateType(c *gin.Context) {
+	db := Conn()
 	defer db.Close()
 
 	// Migrate the schema
 	db.AutoMigrate(&Type{})
 
 	// 创建
-	db.Create(&Type{examine_id: 10001, title: "测试1号"})
+	db.Create(&Type{ExamineId: 10001, Title: "测试1号"})
+
+	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "Success", RespData: nil})
 }
 
-func UpdateType(c *gin.Context){
-	db := conn()
+func UpdateType(c *gin.Context) {
+	db := Conn()
 	defer db.Close()
 
 	// 读取
@@ -45,8 +40,8 @@ func UpdateType(c *gin.Context){
 	db.Model(&typeObject).Update("title", "测试1号 + 1")
 }
 
-func DeleteType(c *gin.Context)  {
-	db := conn()
+func DeleteType(c *gin.Context) {
+	db := Conn()
 	defer db.Close()
 
 	// 读取
@@ -54,16 +49,4 @@ func DeleteType(c *gin.Context)  {
 
 	// 删除 - 删除product
 	db.Delete(&typeObject)
-}
-
-func conn() *gorm.DB{
-	gorm.DefaultTableNameHandler = func (db *gorm.DB, defaultTableName string) string  {
-		return "pm_" + defaultTableName;
-	}
-
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3308)/pmp?charset=utf8")
-	if err != nil {
-		panic("failed to connect database")
-	}
-	return db;
 }
