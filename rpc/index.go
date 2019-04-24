@@ -49,5 +49,10 @@ func main() {
 		results.DELETE("", DeleteResult)
 	}
 
+	sms := router.Group("/sms")
+	{
+		sms.POST("", Send)
+	}
+
 	router.Run(":8080")
 }

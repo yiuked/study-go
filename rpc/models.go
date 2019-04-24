@@ -33,8 +33,10 @@ type User struct {
 // 用户
 type Sms struct {
 	gorm.Model
+	Type string
 	Phone string
-	Status bool
+	Status string
+	Code string
 	Msg string
 }
 

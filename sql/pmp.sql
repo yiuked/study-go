@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50562
 File Encoding         : 65001
 
-Date: 2019-04-22 17:48:00
+Date: 2019-04-24 17:57:54
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -1547,18 +1547,22 @@ INSERT INTO `pm_questions` VALUES ('3669', '11199', '1005', '所有项目范围�
 DROP TABLE IF EXISTS `pm_sms`;
 CREATE TABLE `pm_sms` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` enum('REG','LOGIN','INFO','FORGET') NOT NULL DEFAULT 'INFO',
   `phone` varchar(32) NOT NULL,
-  `status` enum('0','1') NOT NULL DEFAULT '0',
+  `status` enum('INIT','VERIFIED') NOT NULL DEFAULT 'INIT',
+  `code` varchar(6) NOT NULL DEFAULT '000000',
   `msg` varchar(256) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  `deleted_at` datetime NOT NULL,
+  `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of pm_sms
 -- ----------------------------
+INSERT INTO `pm_sms` VALUES ('12', 'REG', '13688045082', 'INIT', '3052', '尊敬的用户，您的的短信验证为3052.', '2019-04-24 09:34:57', '2019-04-24 09:34:57', null);
+INSERT INTO `pm_sms` VALUES ('13', 'REG', '13688045082', 'INIT', '3052', '尊敬的用户，您的的短信验证为3052.', '2019-04-24 09:48:39', '2019-04-24 09:48:39', null);
 
 -- ----------------------------
 -- Table structure for `pm_types`
