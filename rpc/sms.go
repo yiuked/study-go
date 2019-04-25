@@ -26,7 +26,7 @@ func Send(c *gin.Context) {
 	smsPhone := c.Query("phone")
 	smsType := c.Query("type")
 
-	if IsPhone(smsPhone) {
+	if IsPhone(smsPhone) == false {
 		c.JSON(http.StatusOK, Response{RespCode: RespStatusArgs, RespDesc: "手机格式错误", RespData: nil})
 	}
 
@@ -58,15 +58,18 @@ func (s *SmsAction) SendReg(smsPhone string) {
 }
 
 func (s *SmsAction) sendSms(req RequestData) {
-	sid, _ := Config.Get("sid")
-	url, _ := Config.Get("api")
-	appId, _ := Config.Get("api")
-	token, _ := Config.Get("token")
+	sid, _ := Config.Get("sms.sid")
+	url, _ := Config.Get("sms.api")
+	appId, _ := Config.Get("sms.app_id")
+	token, _ := Config.Get("sms.token")
 
 	timer := time.Now().Format("20060102150405")
 	sig := strings.ToUpper(Md5(fmt.Sprintf("%s%s%s", appId, token, timer)))
 
+	fmt.Printf("---[%s%s%s]---", appId, token, timer)
+
 	url = fmt.Sprintf("%s/2013-12-26/Accounts/%s/SMS/TemplateSMS?sig=%s", url, sid, sig)
+	log.Println(url)
 
 	authorization := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", sid, timer)))
 	headers := map[string]string{"Accept": "application/json", "Content-Type": "application/json;charset=utf-8", "Authorization": authorization}

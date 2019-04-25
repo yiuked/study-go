@@ -11,7 +11,7 @@ var Config *yaml.File
 func main() {
 
 	Config, _ = yaml.ReadFile("conf.yaml")
-	fmt.Println(Config.Get("sid"))
+	fmt.Println(Config.Get("sms.sid"))
 
 	router := gin.Default()
 
