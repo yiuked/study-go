@@ -1,10 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/kylelemons/go-gypsy/yaml"
 )
 
+var Config *yaml.File
+
 func main() {
+
+	Config, _ = yaml.ReadFile("conf.yaml")
+	fmt.Println(Config.Get("sid"))
+
 	router := gin.Default()
 
 	types := router.Group("/types")
