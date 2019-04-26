@@ -1,6 +1,9 @@
 package main
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+	"time"
+)
 
 // 考题类型
 type Type struct {
@@ -22,15 +25,25 @@ type Question struct {
 
 // 用户
 type User struct {
-	gorm.Model
-	UserId int
+	UserId int `gorm:"primary_key"`
 	NickName string
 	Phone string
 	Password string
-	Identity string
+	Status string
+	Level int8
+	LoginCnt int
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-// 用户
+// 用户Token
+type Token struct {
+	gorm.Model
+	UserId int
+	Token string
+}
+
+// 短信
 type Sms struct {
 	gorm.Model
 	Type string

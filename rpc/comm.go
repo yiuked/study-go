@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 func Conn() *gorm.DB {
@@ -19,7 +20,7 @@ func Conn() *gorm.DB {
 		return "pm_" + defaultTableName;
 	}
 
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3308)/pmp?charset=utf8")
+	db, err := gorm.Open("mysql", "root:@tcp(localhost:3308)/pmp?charset=utf8&parseTime=true")
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -98,8 +99,14 @@ func ParseUrl(data map[string]string) string {
 	return strings.Join(param, "&")
 }
 
-func Md5(str string) string  {
+func Md5(str string) string {
 	h := md5.New()
 	h.Write([]byte(str))
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func StrToTimer(value string) time.Time{
+	var cstSh, _ = time.LoadLocation("Asia/Shanghai")
+	valueTimer, _ := time.ParseInLocation("2006-01-02 15:04:05", value, cstSh)
+	return valueTimer
 }

@@ -62,5 +62,11 @@ func main() {
 		sms.POST("", Send)
 	}
 
+	users := router.Group("/users")
+	{
+		users.POST("", Register)
+		users.POST("/login", Login)
+	}
+
 	router.Run(":8080")
 }
