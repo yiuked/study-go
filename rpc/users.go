@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 )
 
 func Register(c *gin.Context) {
@@ -65,5 +67,54 @@ func Login(c *gin.Context) {
 	user.LoginCnt += 1
 	db.Save(&user)
 
-	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "success", RespData: nil})
+	var token Token
+	db.Where("user_id=?", user.UserId).First(&token)
+	// 生成新的过期时间
+	tokenExp, _ := Config.Get("user.token_exp")
+	tokenExpDuration, _ := time.ParseDuration(tokenExp)
+	token.ExpireAt = time.Now().Add(tokenExpDuration)
+	// 生成新的token
+	token.Token = Md5(fmt.Sprintf("%d%s", user.UserId, time.Now().String()))
+	// 创建或者更新用户token
+	if token.UserId > 0 {
+		db.Save(&token)
+	} else {
+		token.UserId = user.UserId
+		db.Create(&token)
+	}
+
+	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "success", RespData: token})
+}
+
+func IsLogin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		db := Conn()
+		tokenStr := c.Request.URL.Query().Get("token")
+		var token Token
+		db.Where("token=?", tokenStr).First(&token)
+		if token.ExpireAt.Before(time.Now()) {
+			c.JSON(http.StatusForbidden, "Invalid API token")
+			c.Abort()
+			return
+		} else {
+			c.
+			c.Next()
+		}
+	}
+}
+
+func IsAdmin() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		db := Conn()
+		tokenStr := c.Query("token")
+		var token Token
+		db.Where("token=?", tokenStr).First(&token)
+		if token.ExpireAt.Before(time.Now()) {
+			c.JSON(http.StatusForbidden, "Invalid API token")
+			c.Abort()
+			return
+		} else {
+			c.Next()
+		}
+	}
 }

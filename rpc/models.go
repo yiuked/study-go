@@ -39,8 +39,9 @@ type User struct {
 // 用户Token
 type Token struct {
 	gorm.Model
-	UserId int
+	UserId int `gorm:"unique;not null"` // 设置会员号（member number）唯一并且不为空
 	Token string
+	ExpireAt time.Time
 }
 
 // 短信
@@ -51,6 +52,23 @@ type Sms struct {
 	Status string
 	Code string
 	Msg string
+}
+
+// 用户
+type Result struct {
+	gorm.Model
+	UserId int
+	Score int
+	TotalScore int
+}
+// 用户
+type ResultItems struct {
+	ID int
+	UserId int
+	ResultId int
+	QuestionId int
+	UserAnswer string
+	IsRight int
 }
 
 // 返回信息格式
@@ -68,3 +86,4 @@ type Item struct {
 	Total int
 	Count int
 }
+
