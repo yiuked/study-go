@@ -20,7 +20,7 @@ func Conn() *gorm.DB {
 		return "pm_" + defaultTableName;
 	}
 
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3309)/pmp?charset=utf8&parseTime=true&loc=Asia%2FShanghai")
+	db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/pmp?charset=utf8&parseTime=true&loc=Asia%2FShanghai")
 	if err != nil {
 		panic("failed to connect database")
 	}

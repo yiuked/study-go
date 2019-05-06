@@ -97,7 +97,6 @@ func IsLogin() gin.HandlerFunc {
 			c.Abort()
 			return
 		} else {
-			c.
 			c.Next()
 		}
 	}
