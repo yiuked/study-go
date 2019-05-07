@@ -1,10 +1,11 @@
 db:
-  host: localhost,
-  port: 3306,
-  username: root,
-  password: root,
-  database: pmp,
+  host: localhost
+  port: 3309
+  username: root
+  password:
+  database: pmp
   prefix: pm_
+  charset: utf8
 sms:
   api: https://app.cloopen.com:8883
   sid: 8a48b55150f4a726015109e58cd350c0

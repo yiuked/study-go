@@ -3,15 +3,12 @@ package main
 import "fmt"
 
 func main() {
+	global := make(map[string] interface{})
 
-	name,age,sex := foo(123)
-	fmt.Printf("%s:%d:%d",name,age,sex)
+	global["name"] = "123"
+	global["age"] = 123
+	global["chid"] = []int{1,2,3}
 
-	name1,_,sex3 := foo(123, "李四")
-	fmt.Printf("%s:%d",name1,sex3)
-
+	fmt.Println(global)
 }
 
-func foo(user_id int, args...interface{}) (name string, age int, sex int)  {
-	return "张三",25, 1
-}

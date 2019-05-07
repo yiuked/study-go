@@ -24,7 +24,7 @@ func CreateType(c *gin.Context) {
 	db.AutoMigrate(&Type{})
 
 	// 创建
-	db.Create(&Type{ExamineId: 10001, Title: "测试1号"})
+	db.Create(&Type{Title: "测试1号"})
 
 	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "Success", RespData: nil})
 }

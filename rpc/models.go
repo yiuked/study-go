@@ -7,13 +7,13 @@ import (
 
 // 考题类型
 type Type struct {
+	gorm.Model
 	Title string
-	ExamineId int
 }
 // 考题
 type Question struct {
-	QuestionId int
-	ExamineId int
+	gorm.Model
+	TypeId uint
 	QuestionTitle string
 	Analyze string
 	Answer string
@@ -25,13 +25,13 @@ type Question struct {
 
 // 用户
 type User struct {
-	UserId int `gorm:"primary_key"`
+	UserId uint `gorm:"primary_key"`
 	NickName string
 	Phone string
 	Password string
 	Status string
 	Level int8
-	LoginCnt int
+	LoginCnt uint
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -39,7 +39,7 @@ type User struct {
 // 用户Token
 type Token struct {
 	gorm.Model
-	UserId int `gorm:"unique;not null"` // 设置会员号（member number）唯一并且不为空
+	UserId uint `gorm:"unique;not null"` // 设置会员号（member number）唯一并且不为空
 	Token string
 	ExpireAt time.Time
 }
@@ -57,33 +57,44 @@ type Sms struct {
 // 用户
 type Result struct {
 	gorm.Model
-	UserId int
-	Score int
-	TotalScore int
+	TypeId uint
+	UserId uint
+	Score uint
+	TotalScore uint
 }
 // 用户
-type ResultItems struct {
-	ID int
-	UserId int
-	ResultId int
-	QuestionId int
+type ResultItem struct {
+	ID uint
+	UserId uint
+	ResultId uint
+	QuestionId uint
 	UserAnswer string
-	IsRight int
+	IsRight uint
 }
 
 // 返回信息格式
 type Response struct {
-	RespCode int
+	RespCode uint
 	RespDesc string
 	RespData interface{}
 }
 
 // 还回数组格式
 type Item struct {
-	Limit int
-	Offset int
+	Limit uint
+	Offset uint
 	Data interface{}
-	Total int
-	Count int
+	Total uint
+	Count uint
 }
 
+type G struct {
+	User User
+	Token Token
+}
+
+type TestResult struct {
+	Score uint
+	TotalScore uint
+	Answer map[string]string
+}

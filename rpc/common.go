@@ -16,12 +16,25 @@ import (
 )
 
 func Conn() *gorm.DB {
+	userName, _ := Config.Get("db.username")
+	password, _ := Config.Get("db.password")
+	host, _ := Config.Get("db.host")
+	port, _ := Config.Get("db.port")
+	database, _ := Config.Get("db.database")
+	charset, _ := Config.Get("db.charset")
+	prefix, _ := Config.Get("db.prefix")
+
+	// 设置数据库表前缀
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return "pm_" + defaultTableName;
+		return prefix + defaultTableName
 	}
 
-	db, err := gorm.Open("mysql", "root:@tcp(localhost:3306)/pmp?charset=utf8&parseTime=true&loc=Asia%2FShanghai")
+	// 建立数据库连接
+	db, err := gorm.Open("mysql",fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true&loc=Asia%%2FShanghai",
+		userName, password, host, port, database, charset))
+
 	if err != nil {
+		panic(err)
 		panic("failed to connect database")
 	}
 	return db
@@ -105,7 +118,7 @@ func Md5(str string) string {
 	return hex.EncodeToString(h.Sum(nil))
 }
 
-func StrToTimer(value string) time.Time{
+func StrToTimer(value string) time.Time {
 	var cstSh, _ = time.LoadLocation("Asia/Shanghai")
 	valueTimer, _ := time.ParseInLocation("2006-01-02 15:04:05", value, cstSh)
 	return valueTimer

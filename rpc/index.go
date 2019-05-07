@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/kylelemons/go-gypsy/yaml"
-	"time"
 )
 
 var Config *yaml.File
-var locZone = time.FixedZone("CST", 8*3600)
+var global G
 
 func main() {
 

@@ -88,6 +88,8 @@ func Login(c *gin.Context) {
 
 func IsLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		//c.Next()
+		//return
 		db := Conn()
 		tokenStr := c.Request.URL.Query().Get("token")
 		var token Token
@@ -97,6 +99,7 @@ func IsLogin() gin.HandlerFunc {
 			c.Abort()
 			return
 		} else {
+			global.Token = token
 			c.Next()
 		}
 	}

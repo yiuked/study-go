@@ -27,7 +27,7 @@ func GetQuestions(c *gin.Context) {
 	db.Model(&Question{}).Count(&Total).Limit(limit).Offset(offset).Find(&questions)
 
 	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "Success",
-		RespData: Item{Limit: limit, Offset: offset, Count: len(questions), Total: Total, Data: questions}})
+		RespData: Item{Limit: uint(limit), Offset: uint(offset), Count: uint(len(questions)), Total: uint(Total), Data: questions}})
 }
 
 func CreateQuestion(c *gin.Context) {
@@ -71,5 +71,5 @@ func SearchQuestions(c *gin.Context) {
 	db.Model(&Question{}).Count(&Total).Limit(limit).Offset(offset).Find(&questions)
 
 	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "Success",
-		RespData: Item{Limit: limit, Offset: offset, Count: len(questions), Total: Total, Data: questions}})
+		RespData: Item{Limit: uint(limit), Offset: uint(offset), Count: uint(len(questions)), Total: uint(Total), Data: questions}})
 }
