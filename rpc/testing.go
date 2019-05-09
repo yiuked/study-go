@@ -25,7 +25,6 @@ func Testing(c *gin.Context) {
 		return
 	}
 
-
 	var questionIdArr []uint64
 	for key, _ := range questionIds {
 		questionId, _ := strconv.ParseUint(key, 10, 64)
@@ -59,6 +58,7 @@ func Testing(c *gin.Context) {
 		return
 	}
 
+	var testResultItems []TestResultItem
 	// 要么全新增，要么全更新
 	if result.ID <= 0 {
 		result.TypeId = testingType.ID
@@ -73,9 +73,43 @@ func Testing(c *gin.Context) {
 			var resultItem ResultItem
 			if value, ok := questionIds[strconv.Itoa(int(question.ID))]; ok && value == question.Answer {
 				score++
-				resultItem = ResultItem{UserId: global.Token.UserId, ResultId: result.ID, QuestionId: question.ID, UserAnswer: value, IsRight: 1}
+				resultItem = ResultItem{
+					UserId:     global.Token.UserId,
+					ResultId:   result.ID,
+					QuestionId: question.ID,
+					UserAnswer: value,
+					IsRight:    1}
+				testResultItems = append(testResultItems,
+					TestResultItem{
+						QuestionId:    question.ID,
+						UserAnswer:    value,
+						IsRight:       1,
+						QuestionTitle: question.QuestionTitle,
+						ItemA:         question.ItemA,
+						ItemB:         question.ItemA,
+						ItemC:         question.ItemA,
+						ItemD:         question.ItemA,
+						Answer:        question.Answer,
+						Analyze:       question.Analyze})
 			} else {
-				resultItem = ResultItem{UserId: global.Token.UserId, ResultId: result.ID, QuestionId: question.ID, UserAnswer: value, IsRight: 0}
+				resultItem = ResultItem{
+					UserId:     global.Token.UserId,
+					ResultId:   result.ID,
+					QuestionId: question.ID,
+					UserAnswer: value,
+					IsRight:    0}
+				testResultItems = append(testResultItems,
+					TestResultItem{
+						QuestionId:    question.ID,
+						UserAnswer:    value,
+						IsRight:       1,
+						QuestionTitle: question.QuestionTitle,
+						ItemA:         question.ItemA,
+						ItemB:         question.ItemA,
+						ItemC:         question.ItemA,
+						ItemD:         question.ItemA,
+						Answer:        question.Answer,
+						Analyze:       question.Analyze})
 			}
 			if err := ts.Create(&resultItem).Error; err != nil {
 				abort(c, ts, err)
@@ -97,9 +131,33 @@ func Testing(c *gin.Context) {
 				score++
 				resultItem.UserAnswer = value
 				resultItem.IsRight = 1
+				testResultItems = append(testResultItems,
+					TestResultItem{
+						QuestionId:    question.ID,
+						UserAnswer:    value,
+						IsRight:       1,
+						QuestionTitle: question.QuestionTitle,
+						ItemA:         question.ItemA,
+						ItemB:         question.ItemA,
+						ItemC:         question.ItemA,
+						ItemD:         question.ItemA,
+						Answer:        question.Answer,
+						Analyze:       question.Analyze})
 			} else {
 				resultItem.UserAnswer = value
 				resultItem.IsRight = 0
+				testResultItems = append(testResultItems,
+					TestResultItem{
+						QuestionId:    question.ID,
+						UserAnswer:    value,
+						IsRight:       1,
+						QuestionTitle: question.QuestionTitle,
+						ItemA:         question.ItemA,
+						ItemB:         question.ItemA,
+						ItemC:         question.ItemA,
+						ItemD:         question.ItemA,
+						Answer:        question.Answer,
+						Analyze:       question.Analyze})
 			}
 			if err := ts.Save(&resultItem).Error; err != nil {
 				abort(c, ts, err)
@@ -119,7 +177,32 @@ func Testing(c *gin.Context) {
 
 	// 返回最终结果
 	ts.Commit()
-	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "success", RespData: TestResult{Score:score, TotalScore:totalScore,Answer:questionIds}})
+	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "success", RespData: TestResult{Score: score, TotalScore: totalScore, Items: testResultItems}})
+}
+
+func TestingResult(c *gin.Context) {
+	db := Conn()
+	resultId := c.Query("result_id")
+	tablePrefix, _ := Config.Get("db.prefix")
+
+	var result Result
+
+	if err := db.Where("id=? AND user_id=?", resultId, global.Token.UserId).First(&result).Error; err != nil {
+		c.JSON(http.StatusOK, Response{RespCode: RespStatusArgs, RespDesc: err.Error()})
+		c.Abort()
+		return
+	}
+
+	var testResultItem []TestResultItem
+	if err := db.Raw("SELECT i.question_id,i.user_answer,i.is_right,q.question_title,q.`answer`,q.`analyze`,q.item_a,q.item_b,q.item_c,q.item_d FROM `"+tablePrefix+"result_items` i " +
+		"INNER JOIN `"+tablePrefix+"questions` q ON i.question_id=q.id " +
+		"WHERE i.result_id=?", resultId).Find(&testResultItem).Error; err != nil {
+		c.JSON(http.StatusOK, Response{RespCode: RespStatusArgs, RespDesc: err.Error()})
+		c.Abort()
+		return
+	}
+
+	c.JSON(http.StatusOK, Response{RespCode: RespStatusOK, RespDesc: "success", RespData: TestResult{Score: result.Score, TotalScore: result.TotalScore, Items: testResultItem}})
 }
 
 func abort(c *gin.Context, ts *gorm.DB, err error) {

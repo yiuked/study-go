@@ -46,6 +46,8 @@ func main() {
 	}
 
 	router.POST("/testing", IsLogin(), Testing)
+	router.GET("/testing/result", IsLogin(), TestingResult)
+
 	results := router.Group("/results")
 	results.Use(IsLogin())
 	{

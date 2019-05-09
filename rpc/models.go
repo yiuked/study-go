@@ -93,8 +93,21 @@ type G struct {
 	Token Token
 }
 
+type TestResultItem struct {
+	QuestionId uint
+	UserAnswer string
+	IsRight uint
+	QuestionTitle string
+	ItemA string
+	ItemB string
+	ItemC string
+	ItemD string
+	Answer string
+	Analyze string
+}
+
 type TestResult struct {
 	Score uint
 	TotalScore uint
-	Answer map[string]string
+	Items []TestResultItem
 }
