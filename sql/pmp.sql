@@ -1,19 +1,40 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : wamp-3309
+Source Server         : localhost
 Source Server Version : 50617
-Source Host           : localhost:3309
+Source Host           : localhost:3306
 Source Database       : pmp
 
 Target Server Type    : MYSQL
 Target Server Version : 50617
 File Encoding         : 65001
 
-Date: 2019-05-07 16:50:06
+Date: 2019-05-21 22:24:13
 */
 
 SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for `pm_accesses`
+-- ----------------------------
+DROP TABLE IF EXISTS `pm_accesses`;
+CREATE TABLE `pm_accesses` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `rule_id` int(11) NOT NULL,
+  `request_id` int(11) NOT NULL,
+  `status` tinyint(1) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of pm_accesses
+-- ----------------------------
+INSERT INTO `pm_accesses` VALUES ('1', '1', '1', '1', '2019-05-21 22:21:25', '2019-05-21 22:21:28', '0000-00-00 00:00:00');
+INSERT INTO `pm_accesses` VALUES ('2', '1', '2', '1', '2019-05-21 22:22:51', '2019-05-21 22:22:54', '0000-00-00 00:00:00');
 
 -- ----------------------------
 -- Table structure for `pm_questions`
@@ -1544,6 +1565,27 @@ INSERT INTO `pm_questions` VALUES ('3668', '1005', '根据初始估算，一个�
 INSERT INTO `pm_questions` VALUES ('3669', '1005', '所有项目范围可交付成果均已完成。但是，客户坚持任务项目未全部完成。为了证明项目完工并包含客户的未解决问题，应该使用下列哪一项？', '项目或阶段收尾文件包括表明项目或阶段完工的正式文件，以及用来把完成的项目或阶段可交付成果移交给他人（如运营部门或下一阶段）的正式文件', 'A', '项目收尾文件', '产品范围说明书', '问题日志', '项目质量管理计划', '0000-00-00 00:00:00', '0000-00-00 00:00:00', null);
 
 -- ----------------------------
+-- Table structure for `pm_requests`
+-- ----------------------------
+DROP TABLE IF EXISTS `pm_requests`;
+CREATE TABLE `pm_requests` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `request_type` varchar(16) NOT NULL,
+  `router` varchar(32) NOT NULL,
+  `name` varchar(56) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of pm_requests
+-- ----------------------------
+INSERT INTO `pm_requests` VALUES ('1', 'GET', '/types', '考试列表', '2019-05-21 22:03:24', '2019-05-21 22:03:26', '0000-00-00 00:00:00');
+INSERT INTO `pm_requests` VALUES ('2', 'POST', '/types', '创建考试列表', '2019-05-21 22:04:16', '2019-05-21 22:04:19', '0000-00-00 00:00:00');
+
+-- ----------------------------
 -- Table structure for `pm_results`
 -- ----------------------------
 DROP TABLE IF EXISTS `pm_results`;
@@ -1593,6 +1635,24 @@ INSERT INTO `pm_result_items` VALUES ('9', '6', '2', '2169', 'A', '0');
 INSERT INTO `pm_result_items` VALUES ('10', '6', '2', '2170', 'D', '0');
 
 -- ----------------------------
+-- Table structure for `pm_rules`
+-- ----------------------------
+DROP TABLE IF EXISTS `pm_rules`;
+CREATE TABLE `pm_rules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of pm_rules
+-- ----------------------------
+INSERT INTO `pm_rules` VALUES ('1', '超级管理员', '2019-05-21 22:20:59', '2019-05-21 22:21:02', '0000-00-00 00:00:00');
+
+-- ----------------------------
 -- Table structure for `pm_sms`
 -- ----------------------------
 DROP TABLE IF EXISTS `pm_sms`;
@@ -1635,7 +1695,7 @@ CREATE TABLE `pm_tokens` (
 -- ----------------------------
 -- Records of pm_tokens
 -- ----------------------------
-INSERT INTO `pm_tokens` VALUES ('1', '6', '45ddd31c6b10de1741dccbc08efc926a', '2019-05-08 15:54:17', '2019-05-06 02:15:01', '2019-05-06 10:49:17', null);
+INSERT INTO `pm_tokens` VALUES ('1', '6', '45ddd31c6b10de1741dccbc08efc926a', '2019-05-31 15:54:17', '2019-05-06 02:15:01', '2019-05-06 10:49:17', null);
 
 -- ----------------------------
 -- Table structure for `pm_types`
@@ -1647,8 +1707,9 @@ CREATE TABLE `pm_types` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4;
+  PRIMARY KEY (`id`),
+  KEY `idx_pm_types_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4;
 
 -- ----------------------------
 -- Records of pm_types
@@ -1671,6 +1732,8 @@ INSERT INTO `pm_types` VALUES ('15', '真题模考-1003期', '0000-00-00 00:00:0
 INSERT INTO `pm_types` VALUES ('16', '真题模考-1004期', '0000-00-00 00:00:00', '0000-00-00 00:00:00', null);
 INSERT INTO `pm_types` VALUES ('17', '真题模考-1005期', '0000-00-00 00:00:00', '0000-00-00 00:00:00', null);
 INSERT INTO `pm_types` VALUES ('18', '测试1号', '0000-00-00 00:00:00', '0000-00-00 00:00:00', null);
+INSERT INTO `pm_types` VALUES ('19', '测试1号', '2019-05-14 23:34:08', '2019-05-14 23:34:08', null);
+INSERT INTO `pm_types` VALUES ('20', '测试1号', '2019-05-21 22:23:41', '2019-05-21 22:23:41', null);
 
 -- ----------------------------
 -- Table structure for `pm_users`
@@ -1683,6 +1746,7 @@ CREATE TABLE `pm_users` (
   `password` varchar(32) NOT NULL,
   `status` enum('available','unavailable','locked') NOT NULL DEFAULT 'available',
   `level` tinyint(1) NOT NULL DEFAULT '0',
+  `locked` tinyint(1) NOT NULL,
   `login_cnt` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -1694,4 +1758,26 @@ CREATE TABLE `pm_users` (
 -- ----------------------------
 -- Records of pm_users
 -- ----------------------------
-INSERT INTO `pm_users` VALUES ('6', '学员', '13688045082', '7e100345eb9c6a1c192a90001016cce2', 'available', '0', '28', '2019-04-26 09:30:05', '2019-05-06 10:49:17', '0000-00-00 00:00:00');
+INSERT INTO `pm_users` VALUES ('6', '学员', '13688045082', '7e100345eb9c6a1c192a90001016cce2', 'available', '0', '0', '28', '2019-04-26 09:30:05', '2019-05-06 10:49:17', '0000-00-00 00:00:00');
+
+-- ----------------------------
+-- Table structure for `pm_user_admins`
+-- ----------------------------
+DROP TABLE IF EXISTS `pm_user_admins`;
+CREATE TABLE `pm_user_admins` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `rule_id` int(11) NOT NULL,
+  `remark` varchar(32) NOT NULL,
+  `enabled` tinyint(1) NOT NULL,
+  `locked` tinyint(1) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `deleted_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of pm_user_admins
+-- ----------------------------
+INSERT INTO `pm_user_admins` VALUES ('1', '6', '1', '', '0', '0', '2019-05-13 22:47:11', '2019-05-13 22:47:14', '0000-00-00 00:00:00');

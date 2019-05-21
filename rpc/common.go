@@ -37,7 +37,8 @@ func Conn() *gorm.DB {
 		panic(err)
 		panic("failed to connect database")
 	}
-	return db
+
+	return db.Debug()
 }
 
 func Rand(min int, max int) int {

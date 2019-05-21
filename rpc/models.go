@@ -111,3 +111,31 @@ type TestResult struct {
 	TotalScore uint
 	Items []TestResultItem
 }
+
+type UserAdmin struct {
+	gorm.Model
+	UserId uint
+	RuleId uint
+	Remark string
+	Enabled uint
+	Locked uint
+}
+
+type Rule struct {
+	gorm.Model
+	Name string
+}
+
+type Access struct {
+	gorm.Model
+	RuleId uint
+	RequestId uint
+	Status uint
+}
+
+type Request struct {
+	gorm.Model
+	RequestType string
+	Router string
+	Name string
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"time"
 )
@@ -88,8 +89,8 @@ func Login(c *gin.Context) {
 
 func IsLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//c.Next()
-		//return
+		log.Println(c.Request.Method)
+		log.Println(c.Request.URL.Path)
 		db := Conn()
 		tokenStr := c.Request.URL.Query().Get("token")
 		var token Token
@@ -100,22 +101,6 @@ func IsLogin() gin.HandlerFunc {
 			return
 		} else {
 			global.Token = token
-			c.Next()
-		}
-	}
-}
-
-func IsAdmin() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		db := Conn()
-		tokenStr := c.Query("token")
-		var token Token
-		db.Where("token=?", tokenStr).First(&token)
-		if token.ExpireAt.Before(time.Now()) {
-			c.JSON(http.StatusForbidden, "Invalid API token")
-			c.Abort()
-			return
-		} else {
 			c.Next()
 		}
 	}
