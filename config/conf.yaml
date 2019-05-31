@@ -1,0 +1,5 @@
+tasks:
+  - queue: god
+    name: z3u5
+  - queue: lowly
+    name: f!r3m3
